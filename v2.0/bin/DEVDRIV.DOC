@@ -799,4 +799,3 @@ The  third  byte  is  minutes,  the  fourth  hours,  the fifth
 hundredths of seconds, and the  sixth  seconds.   Reading  the
 CLOCK device  gets  the  date and time, writing to it sets the
 date and time.
-                                                                       
