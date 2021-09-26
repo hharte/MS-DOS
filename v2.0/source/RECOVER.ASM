@@ -873,4 +873,3 @@ fattbl  db      0
 data    ends
 
         end     recover
-             

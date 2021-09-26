@@ -10,4 +10,3 @@ HIGHMEM EQU     FALSE   ; Run resident part above transient (high memory)
 KANJI   EQU     false   ; Support for dual byte Microsoft KANJI standard
 IBMJAPAN        EQU     FALSE   ;MUST BE TRUE (along with IBM and KANJI)
 
-

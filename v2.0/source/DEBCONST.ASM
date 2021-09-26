@@ -1,7 +1,7 @@
 .xlist
 .xcref
-INCLUDE debequ.asm
-INCLUDE dossym.asm
+INCLUDE DEBEQU.ASM
+INCLUDE DOSSYM.ASM
 .list
 .cref
 
@@ -1100,4 +1100,3 @@ COM_CSIP DD     ?
 
 CONST   ENDS
         END
-                                                                                                                

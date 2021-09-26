@@ -195,4 +195,3 @@ START           SEGMENT BYTE PUBLIC 'START'
         JMP     DOSINIT
 START           ENDS
 
-

@@ -104,7 +104,7 @@ COMINT  EQU     2FH             ;Communications interrupt used by PRINT
 BLKSIZ  EQU     512             ;Size of the PRINT I/O block in bytes
 FCBSIZ  EQU     40              ;Size of an FCB
 
-        INCLUDE DOST:DOSSYM.ASM
+        INCLUDE DOSSYM.ASM
 
 FCB     EQU     5CH
 PARMS   EQU     80H
@@ -1642,4 +1642,3 @@ move_char endp
 
 CODE    ENDS
         END     START
-                                                                                                  

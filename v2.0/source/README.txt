@@ -174,4 +174,3 @@ At all times, the BIOS writer should be careful to preserve the state
 of the DOS - including the flags.  You should be also be cautioned that
 the MSDOS stack is not deep.  You should not count on more than one or
 two pushes of the registers.
-                                                                                   

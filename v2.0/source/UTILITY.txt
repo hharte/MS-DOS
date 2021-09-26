@@ -810,4 +810,3 @@ A>DIR | SORT /+14 | MORE
 
 will do the same thing except that MORE will give you a chance
 to read the directory before it scrolls off the screen.
-                                     
