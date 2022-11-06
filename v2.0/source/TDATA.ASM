@@ -56,7 +56,8 @@ OVERWR  DB      "File cannot be copied onto itself",13,10,"$"
 LOSTERR DB      "Content of destination lost before copy",13,10,"$"
 
 ;"COPIED_PRE<# files copied>COPIED_POST"
-COPIED_POST  DB      " File(s) copied",13,10ŠCOPIED_PRE   DB      "$"
+COPIED_POST  DB      " File(s) copied",13,10
+COPIED_PRE   DB      "$"
 
 ;"DIRMES_PRE<# files in dir>DIRMES_POST"
 DIRMES_POST  DB      " File(s) "
@@ -91,7 +92,7 @@ DMES    DB      " <DIR>   $"
 
 ;"VERMES_PRE<version #>VERMES_POST"
         IF      IBMVER
-VERMES_PRE  DB      "TeleVideo Personal Computer DOS Version "
+VERMES_PRE  DB      "IBM Personal Computer DOS Version "
         ENDIF
         IF      MSVER
 VERMES_PRE  DB      "MS-DOS Version "
@@ -110,7 +111,8 @@ BAD_ON_OFF DB   "Must specify ON or OFF"        ;Note Run over to next message
 
 ;"DIRHEAD_PRE<path of dir>DIRHEAD_POST"
 DIRHEAD_POST DB      13,10,"$"
-DIRHEAD_PRE  DB      " Directory of  $"Š
+DIRHEAD_PRE  DB      " Directory of  $"
+
 NULPATH DB      "No Path $"
 PATH_TEXT    DB "PATH="
 PROMPT_TEXT  DB "PROMPT="
@@ -164,7 +166,8 @@ PROMPT_TABLE LABEL BYTE
         DB      0                       ; NUL TERMINATED
 
 IFTAB   LABEL   BYTE                    ; Table of IF conditionals
-        DB      3,"NOT"                 ; First byte is countŠ        DW      OFFSET TRANGROUP:IFNOT
+        DB      3,"NOT"                 ; First byte is count
+        DW      OFFSET TRANGROUP:IFNOT
         DB      10,"ERRORLEVEL"
         DW      OFFSET TRANGROUP:IFERLEV
         DB      5,"EXIST"
@@ -218,7 +221,8 @@ COMTAB  DB      4,"DIR",1               ; Table for internal command names
         DB      7,"PROMPT",0
         DW      OFFSET TRANGROUP:ADD_PROMPT
         DB      5,"PATH",0
-        DW      OFFSET TRANGROUP:PATHŠ        DB      5,"EXIT",0
+        DW      OFFSET TRANGROUP:PATH
+        DB      5,"EXIT",0
         DW      OFFSET TRANGROUP:$EXIT
         DB      5,"CTTY",1
         DW      OFFSET TRANGROUP:CTTY
