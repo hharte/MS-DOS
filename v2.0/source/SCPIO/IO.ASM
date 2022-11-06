@@ -1,8 +1,15 @@
 ; I/O System for MS-DOS version 2.00 and later. Revised 12-22-82.
 ; Contains data packets and init code only
 
-BIOSIZ  EQU     8*400H          ;Size of BIOS in bytes
-BIOSIZS EQU     BIOSIZ/10H      ;Size of BIOS in Paragraphs
+       TITLE   IO.SYS for the SCP300F.
+
+; I/O system for Version 2.x of MSDOS.
+
+;This BIOS designed to be linked with the SYSINIT module provided by
+;Microsoft
+
+BIOSIZ  EQU     8*400H          ;Size of BIOS in bytes.
+BIOSIZS EQU     BIOSIZ/10H      ;Size of BIOS in Paragraphs.
 MAXBUF  EQU     10              ; # of buffers for files
 MAXFIL  EQU     10              ; # of files to be opened at one time
 
@@ -12,13 +19,17 @@ MAXFIL  EQU     10              ; # of files to be opened at one time
         PUBLIC  RE_INIT
         PUBLIC  SELECT
 
-EXTRN   SYSINIT:FAR
-EXTRN   CURRENT_DOS_LOCATION:WORD
-EXTRN   FINAL_DOS_LOCATION:WORD
-EXTRN   DEVICE_LIST:DWORD
-EXTRN   MEMORY_SIZE:WORD
-EXTRN   DEFAULT_DRIVE:BYTE
-EXTRN   BUFFERS:BYTE,FILES:BYTE
+;Things needed to communicate with SYSINIT
+
+EXTRN   SYSINIT:FAR                   ;The entry point of SYSINIT
+EXTRN   CURRENT_DOS_LOCATION:WORD     ;Where the DOS is when SYSINIT called
+EXTRN   FINAL_DOS_LOCATION:WORD       ;Where I want SYSINIT to put the DOS
+EXTRN   DEVICE_LIST:DWORD             ;Pointer to the DEVICE list.
+EXTRN   MEMORY_SIZE:WORD              ;Size in paragraphs of Physical memory.
+EXTRN   DEFAULT_DRIVE:BYTE            ;Default Drive to use when system booted
+EXTRN   BUFFERS:BYTE                  ;Number of default buffers.
+                                      ; Leave as is and SYSINIT uses only 2.
+EXTRN   FILES:BYTE
 EXTRN   CONTBL:WORD,AUXTBL:WORD,TIMTBL:WORD,PRNTBL:WORD
 
         IF      LARGDRV
@@ -42,21 +53,51 @@ IO      GROUP   CODE,INITSEG,LASTSEG
 CODE    SEGMENT BYTE PUBLIC 'IOSYS'
         ASSUME  CS:IO,DS:IO
 
-        ORG     0
-ZERO:
-        JMP     INIT
+        ORG     0               ;Starts at an offset of zero.
 
+INIT:   JMP     HWINIT
+
+        PAGE
+
+        SUBTTL  Device driver tables.
 SELECT  DB      (LDRVMAX+SDRVMAX+HARD) DUP (-1)
 
-; ************ DEVICE HEADERS *****************************************
+;-----------------------------------------------+
+;     DWORD pointer to next device              | 1 word offset.
+;         (-1,-1 if last device)                | 1 word segement.
+;-----------------------------------------------+
+;     Device attribute WORD                     ; 1 word.
+;       Bit 15 = 1 for chacter devices.         ;
+;                0 for Block devices.           ;
+;                                               ;
+;       Charcter devices. (Bit 15=1)            ;
+;         Bit 0 = 1  current sti device.        ;
+;         Bit 1 = 1  current sto device.        ;
+;         Bit 2 = 1  current NUL device.        ;
+;         Bit 3 = 1  current Clock device.      ;
+;                                               ;
+;         Bit 13 = 1 for non IBM machines.      ;
+;                  0 for IBM machines only.     ;
+;         Bit 14 = 1 IOCTL control bit.         ;
+;-----------------------------------------------+
+;     Device strategy pointer.                  ; 1 word offset.
+;-----------------------------------------------+
+;     Device interrupt pointer.                 ; 1 word offset.
+;-----------------------------------------------+
+;     Device name field.                        ; 8 bytes.
+;       Character devices are any valid name    ;
+;         left justified, in a space filled     ;
+;         field.                                ;
+;       Block devices contain # of units in     ;
+;         the first byte.                       ;
+;-----------------------------------------------+
 
 DEVSTART LABEL WORD
-
 CONDEV:  ;Header for device CON
         DW      AUXDEV,BIOSSEG  ;Link to next device
         DW      8013H           ;Attributes - console input, output device
-        DW      STRATEGY        ;Interrupt service (Used in future versions)
-        DW      CON$IN          ;Entry point
+        DW      STRATEGY        ;Srategy entry point
+        DW      CON$IN          ;Interrupt entry point
         DB      "CON     "      ;Device name
 
 AUXDEV:  ;Header for device AUX
@@ -73,17 +114,17 @@ PRNDEV:  ;Header for device PRN
         DW      PRN$IN
         DB      "PRN     "
 
-TIMDEV:  ;Header for clock device
+TIMDEV:                         ;Header for device CLOCK
         DW      DSKDEV,BIOSSEG
         DW      8008H
         DW      STRATEGY
         DW      TIM$IN
         DB      "CLOCK   "
 
-DSKDEV:  ;Header for floppy disk device
+DSKDEV:  						;Header for disk devices
         IF      LARGDRV
         DW      SDSKDEV,BIOSSEG
-        DW      2000H
+        DW      2000H           ;Is a block device
         DW      STRATEGY
         DW      LDSK$IN
         DB      ?
@@ -120,25 +161,45 @@ STRATEGY ENDP
 
 ;********************************************************
 
+;
+; Console interrupt routine for processing I/O packets.
+;
+
 CON$IN:
         PUSH    SI
         MOV     SI,OFFSET IO:CONTBL
         JMP     SHORT ENTRY
+
+;
+; Auxilary interrupt routine for processing I/O packets.
+;
 
 AUX$IN:
         PUSH    SI
         MOV     SI,OFFSET IO:AUXTBL
         JMP     SHORT ENTRY
 
+;
+; Printer interrupt routine for processing I/O packets.
+;
+
 PRN$IN:
         PUSH    SI
         MOV     SI,OFFSET IO:PRNTBL
         JMP     SHORT ENTRY
 
+;
+; Clock interrupt routine for processing I/O packets.
+;
+
 TIM$IN:
         PUSH    SI
         MOV     SI,OFFSET IO:TIMTBL
         JMP     SHORT ENTRY
+
+;
+; Disk interrupt routine for processing I/O packets.
+;
 
         IF      LARGDRV
 LDSK$IN:
@@ -161,9 +222,13 @@ HDSK$IN:
         JMP     SHORT ENTRY
         ENDIF
 
+;
+; Common program for handling the simplistic I/O packet
+;   processing scheme in MSDOS 2.0
+;
+
 DISPATCH PROC   FAR
-ENTRY:
-        PUSH    AX
+ENTRY:  PUSH    AX              ;Save all nessacary registers.
         PUSH    CX
         PUSH    DX
         PUSH    DI
@@ -172,26 +237,27 @@ ENTRY:
         PUSH    ES
         PUSH    BX
 
-        LDS     BX,CS:[PTRSAV]  ;GET POINTER TO I/O PACKET
+        LDS     BX,CS:[PTRSAV]  ;Retrieve pointer to I/O Packet.
 
-        MOV     AL,[BX.UNIT]    ;AL = UNIT CODE
-        MOV     AH,[BX.MEDIA]   ;AH = MEDIA DESCRIP
-        MOV     CX,[BX.COUNT]   ;CX = COUNT
-        MOV     DX,[BX.START]   ;DX = START SECTOR
+        MOV     AL,[BX.UNIT]    ;AL = Unit code.
+        MOV     AH,[BX.MEDIA]   ;AH = Media descriptor.
+        MOV     CX,[BX.COUNT]   ;CX = Contains byte/sector count.
+        MOV     DX,[BX.START]   ;DX = Starting Logical sector.
 
-        XCHG    DI,AX
-        MOV     AL,[BX.CMD]
-        XOR     AH,AH
+        XCHG    DI,AX           ;Move Unit & Media into DI temporarily.
+        MOV     AL,[BX.CMD]     ;Retrieve Command type. (1 => 11)
+        XOR     AH,AH           ;Clear upper half of AX for calculation.
+        ADD     SI,AX           ;Compute entry pointer in dispatch table.
         ADD     SI,AX
-        ADD     SI,AX
-        CMP     AL,11
-        JA      CMDERR
-        XCHG    AX,DI
-        LES     DI,[BX.TRANS]
+        CMP     AL,11           ;Verify that not more than 11 commands.
+        JA      CMDERR          ;Ah, well, error out.
+        XCHG    AX,DI           ;Move Unit & Media back where they belong.
+        LES     DI,[BX.TRANS]   ;DI contains addess of Transfer address.
+                                ;ES contains segment.
         PUSH    CS
-        POP     DS
+        POP     DS              ;Data segment same as Code segment.
 
-        CALL    [SI]                    ;GO DO COMMAND
+        CALL    [SI]            ;Perform I/O packet command.
 
         LDS     BX,CS:[PTRSAV]
         MOV     [BX.STATUS],AX          ;MARK OPERATION COMPLETE
@@ -234,7 +300,7 @@ CODE    ENDS
 INITSEG SEGMENT PARA PUBLIC 'IOSYS'
         ASSUME  CS:IO,DS:IO
 
-INIT:
+HWINIT:
         XOR     BP,BP           ; Set up stack just below I/O system.
         MOV     SS,BP
         MOV     SP,BIOSSEG*16
@@ -246,7 +312,8 @@ INITSEG ENDS
 
 
 LASTSEG SEGMENT BYTE PUBLIC 'IOSYS'
-        ASSUME  CS:IO, DS:SEG SYSINIT
+ASSUME  CS:IO
+ASSUME  DS:SEG SYSINIT
 
 ;Fall into this segment from init code of other modules
         MOV     AX,SEG SYSINIT
