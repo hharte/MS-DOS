@@ -1,8 +1,8 @@
 FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
-IBMVER  EQU     true                   ; Set conditional switches
-MSVER   EQU     false
+IBMVER  EQU     FALSE                   ; Set conditional switches
+MSVER   EQU     TRUE
 
 SYSVER  EQU     FALSE                   ; if true, i/o direct to bios
                                         ; so DOS can be debugged

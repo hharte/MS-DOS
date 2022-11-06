@@ -15,7 +15,7 @@ FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
 
-IBMVER  EQU     true
+IBMVER  EQU     FALSE
 KANJI   EQU     FALSE
 
 bdos    equ     21h
