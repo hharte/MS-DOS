@@ -53,6 +53,9 @@ AUXTBL:
         DW      AUX$WRIT
         DW      AUX$WRST
 
+AUXCHAR DB      0
+AUXBST  DB      0
+
 AUX$RDND:
         CALL    AUXISTAT
         JZ      BUS$EXITJ
@@ -112,9 +115,6 @@ AUXLP:
         POP     AX
         OUT     AUXDATA,AL
         RET
-
-AUXCHAR DB      0
-AUXBST  DB      0
 
 CODE    ENDS
         END

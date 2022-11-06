@@ -196,7 +196,7 @@ CONOUTLP:
         LOOP    CONOUTLP
         JMP     EXIT
 
-ESC     EQU     1BH
+ESCAPE  EQU     1BH
 STATE   DW      ST1
 PRMPNT  DW      PARMS
 PARMS   DB      0,0,0,0,0,0,0
@@ -234,7 +234,7 @@ CONOUT:
         JMP     WORD PTR [DI]           ;JUMP TO THE CURRENT ANSI STATE
 
 ST1:
-        CMP     AL,ESC
+        CMP     AL,ESCAPE
         JNZ     OUTCHR
         MOV     WORD PTR [DI],OFFSET IO:ST2
         RET
@@ -250,7 +250,7 @@ OUTLP:  IN      AL,STAT
 
 SENDESC:
         PUSH    AX
-        MOV     AL,ESC
+        MOV     AL,ESCAPE
         CALL    OUTCHR
         JMP     OUTLP
 
@@ -278,7 +278,7 @@ ST3A:   CMP     AL,'0'
         RET
 
 ST4:    PUSH    AX
-        MOV     AL,ESC
+        MOV     AL,ESCAPE
         CALL    OUTCHR
         MOV     AL,'['
         CALL    OUTCHR
@@ -374,49 +374,49 @@ SGRN:
 ;         0FEH                  Use special driver routine (User defined)
 ;         0FFH                  Use parameter #1 as a count
 ;         00H                   end of code
-;         ESC                   Outputs the 'esc' character
+;         ESCAPE                Outputs the 'esc' character
 
 HEATH:
 
-CUP:    DB      ESC             ;Cursor position
+CUP:    DB      ESCAPE          ;Cursor position
         DB      'Y'
         DB      0F1H
         DB      0F2H
         DB      0
 
-CUU:    DB      ESC             ;Cursor up
+CUU:    DB      ESCAPE          ;Cursor up
         DB      'A'
         DB      0FFH
         DB      0
 
-CUD:    DB      ESC             ;Cursor down
+CUD:    DB      ESCAPE          ;Cursor down
         DB      'B'
         DB      0FFH
         DB      0
 
-CUF:    DB      ESC             ;Cursor forward
+CUF:    DB      ESCAPE          ;Cursor forward
         DB      'C'
         DB      0FFH
         DB      0
 
-CUB:    DB      ESC             ;Cursor backward
+CUB:    DB      ESCAPE          ;Cursor backward
         DB      'D'
         DB      0FFH
         DB      0
 
-ED:     DB      ESC             ;Erase display
+ED:     DB      ESCAPE          ;Erase display
         DB      'E'
         DB      0
 
-EL:     DB      ESC             ;Erase line
+EL:     DB      ESCAPE          ;Erase line
         DB      'L'
         DB      0
 
-PSCP:   DB      ESC             ;Save cursor position
+PSCP:   DB      ESCAPE          ;Save cursor position
         DB      'j'
         DB      0
 
-PRCP:   DB      ESC             ;Set cursor to saved position
+PRCP:   DB      ESCAPE          ;Set cursor to saved position
         DB      'k'
         DB      0
 

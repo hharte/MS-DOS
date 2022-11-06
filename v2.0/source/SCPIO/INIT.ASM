@@ -72,7 +72,7 @@ INIT3:
 INIT4:
         TEST    [SWITCHMAP],TWO_BIT     ; Is it double sided
         JZ      INIT1
-        OR      [SIDE],0FFH             ; Set flag
+        OR      BYTE PTR [SIDE],0FFH    ; Set flag
 
 INIT1:
         OR      [SWITCHMAP],V_BIT       ; Always ask for volume ID
@@ -97,7 +97,7 @@ DISKFORMAT:
         POP     DS
 
         IF      HARD
-        CMP     HARDFLAG,0FFH           ; Is it a hard disk ?
+        CMP     BYTE PTR HARDFLAG,0FFH  ; Is it a hard disk ?
         JNZ     FT1
         JMP     HDFORMAT                ; Format the hard disk
 FT1:
@@ -239,7 +239,7 @@ SIDELOOP:
         JMP     ERROR
 
 CHECK_SIDE:
-        TEST    [SIDE],0FFH     ; Check two sided bit
+        TEST    BYTE PTR [SIDE],0FFH     ; Check two sided bit
         JZ      NEXTRACK
         CALL    DRIVESELECT     ; Get drive-select byte.
         TEST    AL,DDENBIT      ; See if double-density.
@@ -288,7 +288,7 @@ F3:     JMP     BOOT_SECTOR
 ; [SI+15] = number of bytes/sector.
 ;
 TABLE:
-        TEST    HARDFLAG,0FFH
+        TEST    BYTE PTR HARDFLAG,0FFH
         MOV     AH,6
         JNZ     DENSITYOK
 
@@ -303,7 +303,7 @@ TABLE:
         MOV     AH,3
         JZ      DENSITYOK       ; It is single density
         MOV     AH,4
-        TEST    [SIDE],0FFH     ; Is it double/sided?
+        TEST    BYTE PTR [SIDE],0FFH    ; Is it double/sided?
         JZ      DENSITYOK
         MOV     AH,5            ; Set to double/sided
         JMP     DENSITYOK
@@ -312,7 +312,7 @@ SIZEOK:
         MOV     AH,0            ; Turn on bit 0 if single-density.
         JZ      DENSITYOK       ; Jump if single-density.
         MOV     AH,1
-        TEST    [SIDE],0FFH     ; Is it double sided?
+        TEST    BYTE PTR [SIDE],0FFH    ; Is it double sided?
         JZ      DENSITYOK
         MOV     AH,2            ; Set to double sided
 DENSITYOK:
@@ -407,7 +407,7 @@ WRTLP:
         STI                     ; Interrupts back on.
         MOV     DX,BP           ; Restore DX.
         MOV     SI,DI           ; Restore SI.
-        CALL    WAIT            ; Wait till status ready.
+        CALL    WAITS           ; Wait till status ready.
         AND     AL,0E4H         ; Accept "not ready", "write protect", "write
         JZ      WRITERET        ;  fault", & "lost data" errors.
         STC                     ; Set CY flag if error.
@@ -417,16 +417,16 @@ WRITERET:
 DCOM:
         OUT     DISK,AL
         AAM                     ; 10 Microsecond delay.
-WAIT:
+WAITS:
         IN      AL,DISK+4
         TEST    AL,DONEBIT
 
         IF      SCP
-        JZ      WAIT
+        JZ      WAITS
         ENDIF
 
         IF      TARBELL
-        JNZ     WAIT
+        JNZ     WAITS
         ENDIF
 
         IN      AL,DISK         ; Get status from disk.
@@ -448,7 +448,7 @@ BOOT_SECTOR:
 SECTOR1:
         TEST    SWITCHMAP,D_BIT
         JZ      POKE_SINGLE
-        TEST    [SIDE],0FFH     ; Read 2 sided bit
+        TEST    BYTE PTR [SIDE],0FFH    ; Read 2 sided bit
         JZ      POKE_SINGLE     ; Do single sided boot
 
 POKE_DOUBLE:
@@ -539,7 +539,7 @@ BOOTRET:
 ; Calculate the number of sectors and buffer size here for bad sector
 ; checking. Initialize the memory parameters.
 
-        TEST    HARDFLAG,0FFH
+        TEST    BYTE PTR HARDFLAG,0FFH
         JNZ     BOOT0
         CALL    RESTORE
 BOOT0:
@@ -547,7 +547,7 @@ BOOT0:
         MOV     AL,[SI]
         CBW
         MOV     CX,[SI+1]       ; # of tracks on disk
-        TEST    HARDFLAG,0FFH   ; Hard disk has 2 bytes for this parameter
+        TEST    BYTE PTR HARDFLAG,0FFH  ; Hard disk has 2 bytes for this parameter
         JNZ     BOOT2
         MOV     CH,0
 BOOT2:
@@ -762,21 +762,21 @@ SETHEAD:
         SHL     AL,1
         NOT     AL
         AND     AL,1CH
-        CMP     [FORMATDATA],PRECOMP    ; Precomp track?
+        CMP     BYTE PTR [FORMATDATA],PRECOMP    ; Precomp track?
         JB      STHD1
         OR      AL,80H                  ;Turn it on
-STHD1:  CMP     [FORMATDATA],LCTRK      ;Are we at low current track?
+STHD1:  CMP     BYTE PTR [FORMATDATA],LCTRK      ;Are we at low current track?
         JAE     LOWCUR
         OR      AL,40H                  ;If not, turn off low write current
 LOWCUR:
         MOV     BYTE PTR [HEADSEL],AL
         MOV     SI,OFFSET CODE:FORMAT+STATBYT
         CALL    DOCOM                   ;Format the track
-        MOV     [FORMAT+1],0            ;Zero step count (if any)
+        MOV     BYTE PTR [FORMAT+1],0   ;Zero step count (if any)
         INC     BL
         CMP     BL,NHEADS               ;Completed the cylinder?
         JNZ     FORMATLOOP
-        MOV     [FORMAT+1],1            ;Step in to next track
+        MOV     BYTE PTR [FORMAT+1],1   ;Step in to next track
         MOV     SI,OFFSET CODE:FORMATDATA
         MOV     AX,[SI]                 ;Get current track number
         INC     AX

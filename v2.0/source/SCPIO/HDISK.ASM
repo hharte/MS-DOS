@@ -310,13 +310,13 @@ ERRTAB:
 
 ;Restore head on hard disk.
 RESTORE:
-        MOV     ARG1+1,30       ; 3 ms step time, no head settle delay
+        MOV     BYTE PTR ARG1+1,30 ; 3 ms step time, no head settle delay
         MOV     AX,7+100H*4     ; 1024 byte sector, LOAD CONSTANTS command
-        XCHG    AX,ARG1+3       ; Previous opcode in AH
+        XCHG    AX,WORD PTR ARG1+3 ; Previous opcode in AH
         MOV     BL,1
         CALL    QUICKCOM        ; Execute command
         JNZ     EXITREST        ; Abort if controller failure
-        MOV     ARG1+1,0        ; Set to fast step (after restore)
+        MOV     BYTE PTR ARG1+1,0 ; Set to fast step (after restore)
         MOV     HSTEP,0FFFH     ; Maximum number of steps
         MOV     HDIR,10H        ; Step out
         CALL    HDCCOM          ; Restore and set fast seek
