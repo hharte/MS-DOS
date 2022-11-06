@@ -429,7 +429,7 @@ entry   RAWOUT
         PUSH    DS
         PUSH    SI
         LDS     SI,DWORD PTR [SI.fcb_FIRCLUS]   ; output to special?
-        TEST    BYTE PTR [SI+SDEVATT],ISSPEC
+        TEST    BYTE PTR [SI+SDEVATT],devid_SPECIAL
         POP     SI
         POP     DS
         JZ      RAWNORM                         ; if not, do normally
