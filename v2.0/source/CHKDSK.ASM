@@ -856,7 +856,7 @@ DOTCOMBMES:
 
 SUBERRP:
         MOV     AL,1
-        XCHG    AL,[ERRSUB]
+        XCHG    AL,BYTE PTR [ERRSUB]
         CMP     AL,0
         JNZ     RET32
         MOV     SI,OFFSET DG:NUL
