@@ -1,0 +1,5 @@
+DEL *.OBJ
+DEL *.LST
+DEL *.MAP
+DEL *.COM
+DEL *.DEV

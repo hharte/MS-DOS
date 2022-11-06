@@ -1,0 +1,7 @@
+F 0000 20FF 00
+N IO.SYS
+L
+RCX
+2000
+W
+Q
