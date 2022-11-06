@@ -1240,7 +1240,7 @@ TRANSIENT:
 ;       INT     21H
 
 DOSVER_LOW      EQU  0136H   ;1.54 in hex
-DOSVER_HIGH     EQU  0200H   ;2.00 in hex
+DOSVER_HIGH     EQU  020BH   ;2.11 in hex
         MOV     AH,GET_VERSION
         INT     21H
         XCHG    AH,AL           ;Turn it around to AH.AL
