@@ -1,3 +1,4 @@
 DEL *.COM
 DEL *.HEX
 DEL *.PRN
+DEL *.BIN
