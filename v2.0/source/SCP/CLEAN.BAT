@@ -1,0 +1,3 @@
+DEL *.COM
+DEL *.HEX
+DEL *.PRN
