@@ -1,0 +1,6 @@
+DEL *.LST
+DEL *.MAP
+DEL *.OBJ
+DEL *.EXE
+DEL *.COM
+DEL *.SYS
