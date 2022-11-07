@@ -1,15 +1,18 @@
-; Seattle Computer Products 8086 Monitor version 1.5  4/24/80
+; Seattle Computer Products 8086 Monitor version 1.5  3-19-82.
 ;   by Tim Paterson
 ; This software is not copyrighted.
 
 
-;To select a disk boot, set one of the following equates
-;to 1, the rest to 0.
+; To select a disk boot, set one of the following equates
+; to 1, the rest to 0.
 
-CROMEMCO4FDC:	EQU	1	;1 for 4FDC, 0 for others
+SCP:			EQU	0	;1 for SCP, 0 for others.
+CROMEMCO4FDC:	EQU	0	;Cromemco 4FDC?
+CROMEMCO16FDC:	EQU	0	;Cromemco 16FDC?
 NORTHSTARSD:	EQU	0	;North Star single density?
-TARBELL:	EQU	0	;Tarbell (single or double)?
-OTHER:		EQU	0	;User-defined disk
+TARBELLSD:		EQU	0	;Tarbell SD controller or DD controller SD only
+TARBELLDD:		EQU	1	;Tarbell DD controller SD or DD?
+OTHER:			EQU	0	;User-defined disk
 
 PUTBASE:EQU	100H
 LOAD:	EQU	200H
@@ -1398,66 +1401,115 @@ BACMES:	DM	8,32,8
 
 BOOT:
 	PUSH	DI
-
+;
 ;************************************************
+;
+; Boot for SCP, Cromemco 4FDC, or 16FDC disk controller with either
+; large or small disks. Loads track 0, sector 1 into LOAD.
+;
+	IF	SCP+CROMEMCO4FDC+CROMEMCO16FDC
 
-;Boot for Cromemco 4FDC disk controller with either
-;large or small disks. Loads track 0, sector 1 into LOAD.
+	IF	SCP
+DISK:	EQU	0E0H
+	INB	BASE+15		; Get sense switch data.
+	MOV	CL,3		; Shift bit 1 over to bit 4 so it
+	ROL	AL,CL		;  can be used for large/small bit.
+	AND	AL,10H		; Keep only the large/small bit.
+	MOV	DH,AL		; Put drive select byte in DH.
+	ENDIF
 
-	IF	CROMEMCO4FDC
-
+	IF	CROMEMCO4FDC+CROMEMCO16FDC
 DISK:	EQU	30H
-
 	MOV	AL,1
 	OUT	2		;Reset 4FDC serial I/O
 	MOV	AL,84H
 	OUT	0		;and set for 300 baud
 	MOV	AL,7FH
 	OUT	4
-	MOV	DL,21H
+	MOV	DH,21H		; Drive-select byte.
+	ENDIF
+
+	IF	CROMEMCO16FDC
+	MOV	AL,30H		; Turn on disk motors and
+	OUT	DISK+4		;  wait one second.
+	MOV	CX,43716
+MOTORDELAY:
+	AAM			; 83 clocks.
+	AAM			; 83 clocks.
+	LOOP	MOTORDELAY	; 17 clocks.
+	ENDIF
+
 RETRY:
-	MOV	AL,0D0H
+	MOV	AL,0D0H		; Force-interrupt command.
 	OUTB	DISK
-READY:
-	INB	DISK
-	ROR	AL
-	JC	READY
-	XOR	DL,10H
-	MOV	AL,DL
+	AAM			; Give force-interrupt time.
+	AAM
+	AAM
+	AAM
+
+	IF	SCP
+	XOR	DH,08H		; If SCP, flip density bit.
+	ENDIF
+
+	IF	CROMEMCO16FDC+CROMEMCO4FDC
+	XOR	DH,10H		; If Cromemco, flip disk size bit.
+	ENDIF
+
+	MOV	AL,DH
+
+	IF	SCP
+	OR	AL,80H		; Turn on RESTORE for PerSci's.
+	ENDIF
+
 	OUTB	DISK+4
 	MOV	DI,LOAD
-	MOV	AL,12
+	MOV	AL,0FH		; Restore command.
 	OUTB	DISK
 HOME:
-	INB	DISK+4
+	INB	DISK+4		; Wait for INTRQ.
 	ROR	AL
 	JNC	HOME
-	INB	DISK
-	AND	AL,98H
-	JNZ	RETRY
-	MOV	AL,1
-	OUTB	DISK+2
-	MOV	CX,80H
-	MOV	AL,DL
-	OR	AL,80H
+
+	IF	SCP
+	MOV	AL,DH		; Turn RESTORE off.
 	OUTB	DISK+4
-	MOV	AL,8CH
+	ENDIF
+
+	INB	DISK		; Read status.
+	AND	AL,98H
+	JNZ	RETRY		; Retry if bad.
+	MOV	AL,1		; Ask for sector 1.
+	OUTB	DISK+2
+
+	IF	CROMEMCO4FDC+CROMEMCO16FDC
+	MOV	AL,DH
+	OR	AL,80H		; Turn on auto-wait.
+	OUTB	DISK+4
+	ENDIF
+
+	MOV	DL,DISK+3	; Disk controller data port.
+	MOV	AL,8CH		; Read command.
 	OUTB	DISK
+;	JMPS	READ		; BUGBUG- error 0C from ASM
+	JMP	READ
+READLOOP:
+	INB	DX		; Read data from disk controller chip.
+	STOB			; Put data in memory.
 READ:
+
+	IF	SCP
+	INB	DISK+5		; Wait for DQR or INTRQ.
+	ENDIF
+
+	IF	CROMEMCO4FDC+CROMEMCO16FDC
 	INB	DISK+4
-	ROR	AL
-	JC	DONE
-	INB	DISK+3
-	STOB
-	LOOP	READ
-WSTAT:
-	INB	DISK+4
-	ROR	AL
-	JNC	WSTAT
-DONE:
-	INB	DISK
+	ENDIF
+
+	ROR	AL		; Check for INTRQ.
+	JNC	READLOOP	; Jump if not.
+	INB	DISK		; Get status.
 	AND	AL,9CH
-	JNZ	RETRY
+	JNZ	RETRY		; Jump if error.
 	ENDIF
 
 ;***************************************************
@@ -1496,10 +1548,9 @@ CHKTRK:
 	CALL	SECTOR
 	JP	CHKTRK
 SECTOR:
-	MOV	AL,[SEC]
+	MOV	AL,[SEC]	; Reset sector flag.
 SECLP:
-	MOV	AL,[BST+NOP]
-	TEST	AL,80H
+	TEST	B,[NOP],80H	; Wait for sector flag.
 	JZ	SECLP
 	RET
 ONTRACK:
@@ -1508,7 +1559,7 @@ ONTRACK:
 	MOV	BX,RD+NOP
 GETSEC:
 	CALL	SECTOR
-	AND	AL,0FH
+	TEST	B,[BST+NOP],0FH	; Test for sector zero.
 	JNZ	GETSEC
 GETSYNC:
 	TEST	B,[NOP],4
@@ -1529,15 +1580,17 @@ READ:
 	JNZ	ONTRACK
 	POP	DS
 	ENDIF
-
-;************************************************
-
-;Boot for Tarbell disk controllers. Load track 0,
-;sector 1 into LOAD.
-
-	IF	TARBELL
-
+;
+; ********************************************************************
+;
+; Boot for Tarbell disk controllers. Load track 0, sector 1 into LOAD.
+;
+	IF	TARBELLSD+TARBELLDD
 DISK:	EQU	78H
+
+	IF	TARBELLDD
+	SUB	AH,AH		; Initial drive-select byte = 0.
+	ENDIF
 
 	JP	RETRY
 DCOM:
@@ -1555,8 +1608,15 @@ READY:
 	INB	DISK
 	ROR	AL
 	JC	READY
+
+	IF	TARBELLDD
+	XOR	AH,08H		; Try other density.
+	MOV	AL,AH
+	OUTB	DISK+4
+	ENDIF
+
 	MOV	DI,LOAD
-	MOV	AL,0EH	;Home command @ 10ms/track
+	MOV	AL,0EH		; Home command @ 10ms/track
 	CALL	DCOM
 	INB	DISK+4
 	INB	DISK
@@ -1564,22 +1624,19 @@ READY:
 	JNZ	RETRY
 	MOV	AL,1
 	OUTB	DISK+2
-	MOV	CX,80H
+	MOV	DX,DISK+3	; Disk controller data port.
 	MOV	AL,8CH
 	CALL	DCOM
+;	JMPS	READ
+	JMP	READ
+READLOOP:
+	INB	DX		; Read data from disk controller chip.
+	STOB			; Put in memory.
 READ:
-	INB	DISK+4
-	ROL	AL
-	JNC	DONE
-	INB	DISK+3
-	STOB
-	LOOP	READ
-WSTAT:
-	INB	DISK+4
-	ROL	AL
-	JC	WSTAT
-DONE:
-	INB	DISK
+	INB	DISK+4		; Wait for DRQ or INTRQ.
+	ROL	AL		; Check for INTRQ.
+	JC	READLOOP	; Jump if not.
+	INB	DISK		; Read status.
 	AND	AL,9CH
 	JNZ	RETRY
 	ENDIF
@@ -1590,7 +1647,7 @@ DONE:
 
 ;User may insert customized disk boot here. All
 ;registers are available, stack pointer is valid
-;and interrupts are enabled. Stqck should be at
+;and interrupts are enabled. Stack should be at
 ;same level on fall-through to code below. Last
 ;address available is 07DF hex.
 
