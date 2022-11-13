@@ -204,11 +204,11 @@ sizeok:
         mov     [passcnt],ax    ;set number of sectors per pass
 
         call    compare         ;print copying....
-        jz      loop
+        jz      cploop
         mov     dx,OFFSET DG: cpymsg
         call    print
 
-loop:   push    ds
+cploop:   push    ds
 
         mov     al,[source]
         xor     bx,bx
@@ -243,11 +243,11 @@ twodrv2:mov     al,[dest]
         jbe     quitcopy
 
         call    compare
-        jnz     loop
+        jnz     cploop
         mov     dx,OFFSET DG: srcmsg
         call    print
         call    getkey
-        jmp     loop
+        jmp     cploop
 
 quitcopy:
         mov     ah,DISK_RESET

@@ -43,7 +43,7 @@ GOTCH:
         CMP     AL,"F"-"@"      ;Ignore ^F
         JZ      GETCH
         CMP     AL,SS:[ESCCHAR]
-        JZ      ESC
+        JZ      OEMESC
         CMP     AL,c_DEL
         JZ      BACKSPJ
         CMP     AL,c_BS
@@ -72,15 +72,15 @@ BACKSPJ: JMP    SHORT BACKSP
 
 BUFFUL:
         MOV     AL,7            ;Bell
-        invoke  OUT
+        invoke  OUTP
         JMP     SHORT GETCH
 
-ESC:
+OEMESC:
         transfer    OEMFunctionKey
 
 ENDLIN:
         STOSB                   ;Put the CR in the buffer
-        invoke  OUT             ;Echo it
+        invoke  OUTP            ;Echo it
         POP     DI              ;Get start of buffer
         MOV     [DI-1],DH       ;Tell user how many bytes
         INC     DH              ;DH is length including CR
@@ -97,9 +97,9 @@ COPYNEW:
 ;Output a CRLF
         entry   CRLF
         MOV     AL,c_CR
-        invoke  OUT
+        invoke  OUTP
         MOV     AL,c_LF
-        JMP     OUT
+        JMP     OUTP
 
 ;Output a CRLF which is not terminate buffer
 PHYCRLF:
@@ -109,7 +109,7 @@ PHYCRLF:
 ;Zap the line without zapping the template
         entry   KILNEW
         MOV     AL,"\"
-        invoke  OUT             ;Print the CANCEL indicator
+        invoke  OUTP            ;Print the CANCEL indicator
         POP     SI              ;Remember start of edit buffer
 PUTNEW:
         invoke  CRLF            ;Go to next line on screen
@@ -175,11 +175,11 @@ BACKUP:
         DEC     DI
 BACKMES:
         MOV     AL,c_BS         ;Backspace
-        invoke  OUT
+        invoke  OUTP
         MOV     AL," "          ;Erase
-        invoke  OUT
+        invoke  OUTP
         MOV     AL,c_BS         ;Backspace
-        JMP     OUT             ;Done
+        JMP     OUTP            ;Done
 
 ;User really wants an ESC character in his line
         entry   TwoEsc
@@ -268,7 +268,7 @@ NOTFND:
 
         entry   REEDIT
         MOV     AL,"@"          ;Output re-edit character
-        invoke  OUT
+        invoke  OUTP
         POP     DI
         PUSH    DI
         PUSH    ES

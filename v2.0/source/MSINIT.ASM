@@ -11,7 +11,7 @@ BUFFSTRT DW     ?
 
 ASSUME  CS:DOSGROUP,DS:DOSGROUP,ES:DOSGROUP,SS:NOTHING
 
-        EXTRN   QUIT:NEAR,IRET:NEAR,ABSDRD:FAR,ABSDWRT:FAR
+        EXTRN   QUIT:NEAR,IRETP:NEAR,ABSDRD:FAR,ABSDWRT:FAR
         EXTRN   COMMAND:NEAR,CALL_ENTRY:NEAR
         IF      NOT IBM
         EXTRN   HEADER:BYTE
@@ -289,9 +289,9 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOV     WORD PTR DS:[addr_int_command],OFFSET DOSGROUP:COMMAND
         MOV     WORD PTR DS:[addr_int_terminate],100H
         MOV     WORD PTR DS:[addr_int_terminate+2],DX
-        MOV     WORD PTR DS:[addr_int_ctrl_c],OFFSET DOSGROUP:IRET   
+        MOV     WORD PTR DS:[addr_int_ctrl_c],OFFSET DOSGROUP:IRETP
 							; Ctrl-C exit
-        MOV     WORD PTR DS:[addr_int_fatal_abort],OFFSET DOSGROUP:IRET
+        MOV     WORD PTR DS:[addr_int_fatal_abort],OFFSET DOSGROUP:IRETP
 							; Fatal error exit
         MOV     WORD PTR DS:[addr_int_disk_read],OFFSET DOSGROUP:ABSDRD
 							; INT 25
@@ -299,7 +299,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 							; INT 26
         EXTRN   Stay_resident:NEAR
         MOV     WORD PTR DS:[addr_int_keep_process],OFFSET DOSGROUP:Stay_resident
-        MOV     WORD PTR DS:[addr_int_spooler],OFFSET DOSGROUP:IRET  ; Spooler
+        MOV     WORD PTR DS:[addr_int_spooler],OFFSET DOSGROUP:IRETP ; Spooler
 
         IF      NOT ALTVECT
         MOV     CX,12

@@ -273,7 +273,7 @@ NORMCH:
         LOOPNZ  TRANBUF
         JNZ     ENDRDCON
         XOR     SI,SI           ; Cause a new buffer to be read
-        invoke  OUT             ; Transmit linefeed
+        invoke  OUTP            ; Transmit linefeed
         OR      AL,1            ; Clear zero flag--not end of file
 ENDRDCON:
         PUSH    SS
@@ -320,7 +320,7 @@ GETBUF:
         STOSB
         DEC     DI
         MOV     AL,10
-        invoke  OUT             ; Send linefeed
+        invoke  OUTP            ; Send linefeed
         XOR     SI,SI
         JMP     SHORT ENDRDCON
 
@@ -366,7 +366,7 @@ WRCONLP:
         LODSB
         CMP     AL,1AH          ; ^Z?
         JZ      CONEOF
-        invoke  OUT
+        invoke  OUTP
         LOOP    WRCONLP
 CONEOF:
         POP     AX                      ; Count

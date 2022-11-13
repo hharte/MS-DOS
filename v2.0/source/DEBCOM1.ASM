@@ -40,11 +40,11 @@ ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
         PUBLIC  GETHEX,GET_ADDRESS,GETEOL,GETHX,PERR
         PUBLIC  PERR,MOVE,DUMP,ENTER,FILL,SEARCH,DEFAULT
         if  sysver
-        PUBLIC  IN
+        PUBLIC  CIN
         EXTRN   DISPREG:NEAR,DEVIOCALL:NEAR
         endif
 
-        EXTRN   OUT:NEAR,CRLF:NEAR,OUTDI:NEAR,OUTSI:NEAR,SCANP:NEAR
+        EXTRN   OUTCHAR:NEAR,CRLF:NEAR,OUTDI:NEAR,OUTSI:NEAR,SCANP:NEAR
         EXTRN   SCANB:NEAR,BLANK:NEAR,TAB:NEAR,PRINTMES:NEAR,COMMAND:NEAR
         EXTRN   HEX:NEAR,BACKUP:NEAR
 
@@ -171,7 +171,7 @@ BYTE1:
         TEST    AL,7                    ; On 8-byte boundary?
         JNZ     BYTE0
         MOV     AL,"-"                  ; Mark every 8 bytes
-        CALL    OUT
+        CALL    OUTCHAR
         JMP     SHORT BYTE1
 ENDROW:
         CALL    ASCII                   ; Show it in ASCII
@@ -224,7 +224,7 @@ ASCDMP:
 NOPRT:
         MOV     AL,"."                  ; If unprintable character
 PRIN:
-        CALL    OUT                     ; Print ASCII character
+        CALL    OUTCHAR                 ; Print ASCII character
         LOOP    ASCDMP                  ; CX times
         POP     CX                          ; Restore overall dump length
         MOV     ES:WORD PTR [DEFDUMP],SI
@@ -329,12 +329,12 @@ DOSCAN:
         MOV     CX,BX                   ; Area length back in CX
         POP     DI                      ; Next search location
         POP     BX                      ; Restore list length
-        JNZ     TEST                    ; Continue search if no match
+        JNZ     TEST1                   ; Continue search if no match
         DEC     DI                      ; Match address
         CALL    OUTDI                   ; Print it
         INC     DI                      ; Restore search address
         CALL    CRLF
-TEST:
+TEST1:
         JCXZ    RET1
         JMP     SHORT SCAN              ; Look for next occurrence
 
@@ -572,11 +572,11 @@ GETBYTE:
         CALL    HEX                     ; And display it
 PUTDOT:
         MOV     AL,"."
-        CALL    OUT                     ; Prompt for new value
+        CALL    OUTCHAR                 ; Prompt for new value
         MOV     CX,2                    ; Max of 2 digits in new value
         MOV     DX,0                    ; Intial new value
 GETDIG:
-        CALL    IN                      ; Get digit from user
+        CALL    CIN                     ; Get digit from user
         MOV     AH,AL                   ; Save
         CALL    HEXCHK                  ; Hex digit?
         XCHG    AH,AL                   ; Need original for echo
@@ -586,7 +586,7 @@ GETDIG:
         LOOP    GETDIG                  ; At most 2 digits
 ; We have two digits, so all we will accept now is a command.
 DWAIT:
-        CALL    IN                      ; Get command character
+        CALL    CIN                     ; Get command character
 NOHEX:
         CMP     AL,8                    ; Backspace
         JZ      BS
@@ -599,14 +599,14 @@ NOHEX:
         CMP     AL," "                  ; Go to next address
         JZ      NEXT
         MOV     AL,8
-        CALL    OUT                     ; Back   CLDover illegal character
+        CALL    OUTCHAR                 ; Back   CLDover illegal character
         CALL    BACKUP
         JCXZ    DWAIT
         JMP     SHORT GETDIG
 
 RUB:
         MOV     AL,8
-        CALL    OUT
+        CALL    OUTCHAR
 BS:
         CMP     CL,2                    ; CX=2 means nothing typed yet
         JZ      PUTDOT                  ; Put back the dot we backed     CLDover
@@ -657,7 +657,7 @@ EOL:
 ; Console input of single character
 
         IF      SYSVER
-IN:
+CIN:
         PUSH    DS
         PUSH    SI
         LDS     SI,CS:[CIN]
@@ -673,17 +673,17 @@ NOTCNTC:
         JZ      PRINTON
         CMP     AL,'N'-'@'
         JZ      PRINTOFF
-        CALL    OUT
+        CALL    OUTCHAR
         RET
 
 PRINTOFF:
 PRINTON:
         NOT     [PFLAG]
-        JMP     SHORT IN
+        JMP     SHORT CIN
 
         ELSE
 
-IN:
+CIN:
         MOV     AH,1
         INT     21H
         RET

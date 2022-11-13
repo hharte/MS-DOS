@@ -33,14 +33,14 @@ CODE    SEGMENT BYTE PUBLIC  'CODE'
 	procedure	$STD_CON_INPUT, NEAR
 	call	$STD_CON_INPUT_NO_ECHO
 	push	ax
-	call	OUT
+	call	OUTP
 	pop	ax
 	return
 $STD_CON_INPUT	endp
 ;
 	procedure	$STD_CON_OUTPUT, NEAR
 	mov	al, dl
-	entry	OUT
+	entry	OUTP
 	cmp	al, ' '
 	jc	out_controlch
 	cmp	al, c_DEL	;DEL does not increase CARPOS
@@ -94,7 +94,7 @@ TAB:
 	jcxz	TAB_end
 TAB1:
 	mov	al, ' '
-	call	OUT
+	call	OUTP
 	loop	TAB1
 TAB_end:
 	pop	cx
@@ -104,7 +104,7 @@ out_cr:
 	mov	ss:CARPOS, 0
 	jmp	short out_notprint
 ;
-j_OUT:	jmp	short OUT
+j_OUT:	jmp	short OUTP
 ;
 out_bs:
 	dec	ss:CARPOS
@@ -119,10 +119,10 @@ $STD_CON_OUTPUT	endp
 	jz	j_OUT
 	push	ax
 	mov	al, '^'
-	call	OUT
+	call	OUTP
 	pop	ax
 	or	al, 40h
-	call	OUT
+	call	OUTP
 	return
 BUFOUT	endp
 
@@ -193,7 +193,7 @@ output1:
 	lodsb
 	cmp	al,'$'
 	retz
-	call	OUT
+	call	OUTP
 	jmp	short output1
 
 

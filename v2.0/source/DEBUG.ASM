@@ -87,7 +87,7 @@ CODE    SEGMENT PUBLIC 'CODE'
 ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
         PUBLIC  RESTART,SET_TERMINATE_VECTOR,DABORT,TERMINATE,COMMAND
-        PUBLIC  FIND_DEBUG,CRLF,BLANK,TAB,OUT,INBUF,SCANB,SCANP
+        PUBLIC  FIND_DEBUG,CRLF,BLANK,TAB,OUTCHAR,INBUF,SCANB,SCANP
         PUBLIC  PRINTMES,RPRBUF,HEX,OUTSI,OUTDI,OUT16,DIGIT,BACKUP,RBUFIN
 
         IF  SYSVER
@@ -96,7 +96,7 @@ ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
         ENDIF
 
         EXTRN   PERR:NEAR,COMPARE:NEAR,DUMP:NEAR,ENTER:NEAR,FILL:NEAR
-        EXTRN   GO:NEAR,INPUT:NEAR,LOAD:NEAR,MOVE:NEAR,NAME:NEAR
+        EXTRN   GO:NEAR,INPUT:NEAR,LOAD:NEAR,MOVE:NEAR,NAMEF:NEAR
         EXTRN   REG:NEAR,SEARCH:NEAR,DWRITE:NEAR,UNASSEM:NEAR,ASSEM:NEAR
         EXTRN   OUTPUT:NEAR,ZTRACE:NEAR,TRACE:NEAR,GETHEX:NEAR,GETEOL:NEAR
 
@@ -312,11 +312,11 @@ COMMAND:
         JZ      GoPrompt                ; nope, go prompt
         MOV     [ParityFlag],0          ; reset flag
         MOV     DX,OFFSET DG:ParityMes  ; message to print
-        MOV     AH,STD_CON_STRING_OUTPUT; easy way out
+        MOV     AH,STD_CON_STRING_OUTPUT; easy way OUTCHAR
         INT     21h                     ; blam
 GoPrompt:
         MOV     AL,PROMPT
-        CALL    OUT
+        CALL    OUTCHAR
         CALL    INBUF                   ; Get command line
 ; From now and throughout command line processing, DI points
 ; to next character in command line to be processed.
@@ -444,9 +444,9 @@ INDONE:
 
 CRLF:
         MOV     AL,13
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,10
-        JMP     OUT
+        JMP     OUTCHAR
 
 ; Physical backspace - blank, backspace, blank
 
@@ -457,7 +457,7 @@ BACKUP:
 
 PRINTMES:
         LODS    CS:BYTE PTR [SI]        ; Get char to print
-        CALL    OUT
+        CALL    OUTCHAR
         SHL     AL,1                    ; High bit set?
         JNC     PRINTMES
         RET
@@ -512,7 +512,7 @@ OUTSI:
         MOV     DX,DS                   ; Put DS where we can work with it
         CALL    OUT16                   ; Display segment
         MOV     AL,":"
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     DX,SI
         JMP     SHORT OUT16             ; Output displacement
 
@@ -523,7 +523,7 @@ OUTDI:
         MOV     DX,ES
         CALL    OUT16
         MOV     AL,":"
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     DX,DI
 
 ; Print out 16-bit value in DX in hex
@@ -557,7 +557,7 @@ DIGIT:
 ; is reset before output.
 
         IF      SYSVER
-OUT:
+OUTCHAR:
         PUSH    AX
         AND     AL,7FH
         CMP     AL,7FH
@@ -603,7 +603,7 @@ TABDO:
         JCXZ    POPTAB
 TABLP:
         MOV     AL," "
-        CALL    OUT
+        CALL    OUTCHAR
         LOOP    TABLP
 POPTAB:
         POP     CX
@@ -675,7 +675,7 @@ DEVIOCALL:
         RET
         ELSE
 
-OUT:
+OUTCHAR:
         PUSH    DX
         PUSH    AX
         AND     AL,7FH
@@ -720,9 +720,9 @@ BDONE:
 
 BFULL:
         MOV     AL,8
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,7
-        CALL    OUT
+        CALL    OUTCHAR
         JMP     SHORT FILLBUF
 
 ECHR:
@@ -755,7 +755,7 @@ PLOOP:
         LODSB
         CMP     AL,"$"
         JZ      PRTDONE
-        CALL    OUT
+        CALL    OUTCHAR
         JMP     SHORT PLOOP
 PRTDONE:
         POP     SI
@@ -774,7 +774,7 @@ RPRBUF:
 
 BLANK:
         MOV     AL," "
-        JMP     OUT
+        JMP     OUTCHAR
 
 ; Output the number of blanks in CX
 
@@ -799,7 +799,7 @@ COMTAB  DW      ASSEM                   ; A
         DW      PERR                    ; K
         DW      LOAD                    ; L
         DW      MOVE                    ; M
-        DW      NAME                    ; N
+        DW      NAMEF                   ; N
         DW      OUTPUT                  ; O
         IF      ZIBO
         DW      ZTRACE

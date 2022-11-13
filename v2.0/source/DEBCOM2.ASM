@@ -25,7 +25,7 @@ CONST   SEGMENT PUBLIC BYTE
         EXTRN   REGTAB:BYTE,TOTREG:BYTE,NOREGL:BYTE
         EXTRN   USER_PROC_PDB:WORD,STACK:BYTE,RSTACK:WORD,AXSAVE:WORD
         EXTRN   BXSAVE:WORD,DSSAVE:WORD,ESSAVE:WORD,CSSAVE:WORD,IPSAVE:WORD
-        EXTRN   SSSAVE:WORD,CXSAVE:WORD,SPSAVE:WORD,FSAVE:WORD
+        EXTRN   SSSAVE:WORD,CXSAVE:WORD,SPSAVE:WORD,F_SAVE:WORD
         EXTRN   SREG:BYTE,SEGTAB:WORD,REGDIF:WORD,RDFLG:BYTE
 
 CONST   ENDS
@@ -47,13 +47,13 @@ ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
         PUBLIC  DEFIO,SKIP_FILE,PREPNAME,DEBUG_FOUND
         PUBLIC  REG,COMPARE,GO,INPUT,LOAD
-        PUBLIC  NAME,OUTPUT,TRACE,ZTRACE,DWRITE
+        PUBLIC  NAMEF,OUTPUT,TRACE,ZTRACE,DWRITE
         if  sysver
         PUBLIC  DISPREG
         endif
 
         EXTRN   GETHEX:NEAR,GETEOL:NEAR
-        EXTRN   CRLF:NEAR,BLANK:NEAR,OUT:NEAR
+        EXTRN   CRLF:NEAR,BLANK:NEAR,OUTCHAR:NEAR
         EXTRN   OUTSI:NEAR,OUTDI:NEAR,INBUF:NEAR,SCANB:NEAR,SCANP:NEAR
         EXTRN   RPRBUF:NEAR,HEX:NEAR,OUT16:NEAR,DIGIT:NEAR
         EXTRN   COMMAND:NEAR,DISASLN:NEAR,SET_TERMINATE_VECTOR:NEAR
@@ -104,15 +104,15 @@ NOOVER:
         MOV     BX,AX
         SHL     BX,1
         MOV     AX,WORD PTR [BX+SREG]
-        CALL    OUT
+        CALL    OUTCHAR
         XCHG    AL,AH
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,":"
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     DX,[INDEX]
         CALL    OUT16
         MOV     AL,"="
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     BX,[BX+SEGTAB]
         PUSH    DS
         MOV     DS,[BX]
@@ -159,9 +159,9 @@ REG:
         DEC     DI
         MOV     AX,CS:[DI-2]
 NOTPC:
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,AH
-        CALL    OUT
+        CALL    OUTCHAR
         CALL    BLANK
         PUSH    DS
         POP     ES
@@ -170,7 +170,7 @@ NOTPC:
         CALL    OUT16
         CALL    CRLF
         MOV     AL,":"
-        CALL    OUT
+        CALL    OUTCHAR
         CALL    INBUF
         CALL    SCANB
         JZ      RET4
@@ -187,11 +187,11 @@ FLAG:
         JNZ     BADREG
         CALL    DISPFLAGS
         MOV     AL,"-"
-        CALL    OUT
+        CALL    OUTCHAR
         CALL    INBUF
         CALL    SCANB
         XOR     BX,BX
-        MOV     DX,[FSAVE]
+        MOV     DX,[F_SAVE]
 GETFLG:
         LODSW
         CMP     AL,13
@@ -220,11 +220,11 @@ NEXFLG:
         JMP     SHORT GETFLG
 DISPREGLINE:
         LODS    CS:WORD PTR [SI]
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,AH
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,"="
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     DX,[BX]
         INC     BX
         INC     BX
@@ -238,13 +238,13 @@ REPFLG:
 FERR:
         CALL    SAVCHG
 ERR:
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,AH
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     SI,OFFSET DG:ERRMES
         JMP     PRINT
 SAVCHG:
-        MOV     [FSAVE],DX
+        MOV     [F_SAVE],DX
         RET
 FLGERR:
         MOV     AX,4600H+"B"            ; BF ERROR
@@ -252,7 +252,7 @@ FLGERR:
 DISPFLAGS:
         MOV     SI,OFFSET DG:FLAGTAB
         MOV     CX,16
-        MOV     DX,[FSAVE]
+        MOV     DX,[F_SAVE]
 DFLAGS:
         LODS    CS:WORD PTR [SI]
         SHL     DX,1
@@ -261,9 +261,9 @@ DFLAGS:
 FLAGSET:
         OR      AX,AX
         JZ      NEXTFLG
-        CALL    OUT
+        CALL    OUTCHAR
         MOV     AL,AH
-        CALL    OUT
+        CALL    OUTCHAR
         CALL    BLANK
 NEXTFLG:
         LOOP    DFLAGS
@@ -417,7 +417,7 @@ STOCNT:
         CALL    GETEOL
 STEP:
         MOV     [BRKCNT],0
-        OR      BYTE PTR [FSAVE+1],1
+        OR      BYTE PTR [F_SAVE+1],1
 DEXIT:
 IF  NOT SYSVER
         MOV     BX,[USER_PROC_PDB]
@@ -452,7 +452,7 @@ ENDIF
         POP     ES
         POP     SS
         MOV     SP,[SPSAVE]
-        PUSH    [FSAVE]
+        PUSH    [F_SAVE]
         PUSH    [CSSAVE]
         PUSH    [IPSAVE]
         MOV     DS,[DSSAVE]
@@ -531,8 +531,8 @@ GoReEnter:
 ReEnterReal:
         MOV     CS:[SPSAVE+SEGDIF],SP
         MOV     CS:[SSSAVE+SEGDIF],SS
-        MOV     CS:[FSAVE],CS
-        MOV     SS,CS:[FSAVE]
+        MOV     CS:[F_SAVE],CS
+        MOV     SS,CS:[F_SAVE]
         MOV     SP,OFFSET DG:RSTACK
         PUSH    ES
         PUSH    DS
@@ -553,7 +553,7 @@ ReEnterReal:
         POP     [CSSAVE]
         POP     AX
         AND     AH,0FEH                 ; turn off trace mode bit
-        MOV     [FSAVE],AX
+        MOV     [F_SAVE],AX
         MOV     [SPSAVE],SP
         PUSH    DS
         POP     ES
@@ -802,7 +802,7 @@ DELIM2: CMP     AL,[SWITCHAR]           ; STOP ON THESE GUYS
         CMP     AL,13
 LIMRET: RET
 
-NAME:
+NAMEF:
         CALL    PREPNAME
         MOV     AL,BYTE PTR AXSAVE
         MOV     PARSERR,AL

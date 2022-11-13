@@ -52,7 +52,7 @@ CODE SEGMENT PUBLIC
 ASSUME  CS:DG,DS:DG,SS:DG,ES:DG
 
         PUBLIC  REST_DIR,KILL_BL,INT_24,SCANLN,FINDLIN,SHOWNUM
-        PUBLIC  FNDFIRST,FNDNEXT,CRLF,LF,OUT,UNQUOTE
+        PUBLIC  FNDFIRST,FNDNEXT,CRLF,LF,OUTP,UNQUOTE
 
         if  kanji
         PUBLIC  TESTKANJ
@@ -304,17 +304,17 @@ SHOWNUM:
 
         PUSH    BX
         MOV     AL," "
-        CALL    OUT
+        CALL    OUTP
         CALL    CONV10
         MOV     AL,":"
-        CALL    OUT
+        CALL    OUTP
         MOV     AL,"*"
         POP     BX
         CMP     BX,[CURRENT]
         JZ      STARLIN
         MOV     AL," "
 STARLIN:
-        JMP     OUT
+        JMP     OUTP
 
 
 CONV10:
@@ -359,17 +359,17 @@ LDIG:
 ZERDIG:
         ADD     AL,"0"
         SUB     AL,BL
-        JMP     OUT
+        JMP     OUTP
 
 RET5:   RET
 
 
 CRLF:
         MOV     AL,13
-        CALL    OUT
+        CALL    OUTP
 LF:
         MOV     AL,10
-OUT:
+OUTP:
         PUSH    DX
         XCHG    AX,DX
         MOV     AH,STD_CON_OUTPUT

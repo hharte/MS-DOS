@@ -245,7 +245,7 @@ CODE SEGMENT PUBLIC
 ASSUME  CS:DG,DS:DG,SS:DG,ES:DG
 
         EXTRN   QUIT:NEAR,QUERY:NEAR,FNDFIRST:NEAR,FNDNEXT:NEAR
-        EXTRN   UNQUOTE:NEAR,LF:NEAR,CRLF:NEAR,OUT:NEAR
+        EXTRN   UNQUOTE:NEAR,LF:NEAR,CRLF:NEAR,OUTP:NEAR
         EXTRN   REST_DIR:NEAR,KILL_BL:NEAR,INT_24:NEAR
         EXTRN   FINDLIN:NEAR,SHOWNUM:NEAR,SCANLN:NEAR
 
@@ -637,13 +637,13 @@ COMMAND:
         MOV     DX,OFFSET DG:ABORTCOM
         INT     21H
         MOV     AL,PROMPT
-        CALL    OUT
+        CALL    OUTP
         MOV     DX,OFFSET DG:COMBUF
         MOV     AH,STD_CON_STRING_INPUT
         INT     21H
         MOV     [COMLINE],OFFSET DG:COMBUF + 2
         MOV     AL,10
-        CALL    OUT
+        CALL    OUTP
 PARSE:
         MOV     [PARAM2],0
         MOV     [PARAM3],0
@@ -827,7 +827,7 @@ TABLE   DW      NOCOM   ;No command--edit line
         DW      NOCOM
         DW      ENDED
         DW      INSERT
-        DW      PAGE
+        DW      PAGEF
         DW      LIST
         DW      DELETE
         dw      replac_from_curr        ;replace from current+1 line
@@ -853,7 +853,7 @@ ROTABLE db      0               ;NOCOM
         db      0               ;NOCOM
         db      0               ;ENDED
         db      0               ;INSERT
-        db      1               ;PAGE
+        db      1               ;PAGEF
         db      1               ;LIST
         db      0               ;DELETE
         db      0               ;replac_from_curr
@@ -1097,7 +1097,7 @@ xERROR:
 
 RET$5:  RET
 
-PAGE:
+PAGEF:
         xor     bx,bx           ;get last line in the buffer
         call    findlin
         mov     [lastlin],dx
@@ -1197,11 +1197,11 @@ OUTLN:
         JZ      SEND
         PUSH    AX
         MOV     AL,"^"
-        CALL    OUT
+        CALL    OUTP
         POP     AX
         OR      AL,40H
 SEND:
-        CALL    OUT
+        CALL    OUTP
         CMP     AL,10
         LOOPNZ  OUTLN
         JCXZ    RET7
@@ -1297,7 +1297,7 @@ OUTCNT:
         JCXZ    RET8
 OUTLP:
         LODSB
-        CALL    OUT
+        CALL    OUTP
         DEC     DX
         LOOP    OUTLP
 RET8:   RET
@@ -1405,7 +1405,7 @@ sj12:
         MOV     DX,OFFSET DG:EDITBUF
         INT     21H
         MOV     AL,10
-        CALL    OUT
+        CALL    OUTP
         MOV     CL,[EDITBUF+1]
         MOV     CH,0
         JCXZ    RET12

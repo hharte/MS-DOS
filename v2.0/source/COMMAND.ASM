@@ -313,7 +313,7 @@ EXT_EXEC:
         INT     int_command     ; Do the EXEC
         JC      EXEC_ERR        ; EXEC failed
 EXEC_WAIT:
-        MOV     AH,WAIT
+        MOV     AH,WaitP
         INT     int_command     ; Get the return code
         MOV     [RETCODE],AX
 NOEXEC:

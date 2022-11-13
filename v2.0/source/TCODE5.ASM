@@ -61,7 +61,7 @@ ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
         EXTRN   PRINT_DRIVE:NEAR,SAVUDIR:NEAR,CRLF2:NEAR,PAUSE:NEAR
  
         PUBLIC  PRINT_B,PRINT_G,DISPSIZE,GETNUM,OUTBYTE
-        PUBLIC  DELIM,OUT,OUT2,SETPATH,PATHCRUNCH
+        PUBLIC  DELIM,OUTC,OUT2,SETPATH,PATHCRUNCH
         PUBLIC  CRPRINT,SCANOFF,FCB_TO_ASCZ
         PUBLIC  PRINT_L,PATH,PATHCHRCMP,PRINT_ESC,PRINT_BACK
         PUBLIC  PRINT_EQ,PRINT,ZPRINT,PRINT_PROMPT
@@ -559,7 +559,7 @@ PRINT_PROMPT:
 PP0:
         CALL    PRINT_DRIVE     ; USE DEFAULT PROMPT
         MOV     AL,SYM
-        CALL    OUT
+        CALL    OUTC
         JMP     SHORT PP5
 
 PP1:
@@ -570,7 +570,7 @@ PP1:
         CMP     AL,"$"          ; META CHARACTER?
         JZ      PP2             ; NOPE
 PPP1:
-        CALL    OUT
+        CALL    OUTC
         JMP     PP1
 
 PP2:
@@ -623,7 +623,7 @@ PRINT_L:
 PRINT_B:
         MOV     AL,"|"
 OUTV:
-        JMP     OUT
+        JMP     OUTC
 
 SETPATH:
 ; Get an ASCIZ argument from the unformatted parms
@@ -850,7 +850,7 @@ NOSUP:
         STOSW
         return
 
-OUT:
+OUTC:
 ; Print char in AL without affecting registers
         XCHG    AX,DX
         PUSH    AX

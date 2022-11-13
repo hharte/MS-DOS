@@ -310,16 +310,16 @@ ASSUME  DS:DOSGROUP
         TEST    AH,attr_volume_id       ; Can we find Volume ID?
         JZ      NEXTENT                 ; Nope, (not even $FCB_CREATE)
         XOR     AH,AH                   ; Set zero flag for $FCB_CREATE
-        JMP     SHORT RETF              ; Found Volume ID
+        JMP     SHORT RET_F             ; Found Volume ID
 check_one_volume_id:
         CMP     AH,attr_volume_id       ; Looking only for Volume ID?
         JZ      NEXTENT                 ; Yes, continue search
         ADD     SI,15
         CALL    MatchAttributes
-        JZ      RETF
+        JZ      RET_F
         TEST    BYTE PTR [CREATING],-1  ; Pass back mismatch if creating
         JZ      NEXTENT                 ; Otherwise continue searching
-RETF:
+RET_F:
         LES     BP,[THISDPB]
         MOV     AH,ES:[BP.dpb_drive]
 SETESRET:

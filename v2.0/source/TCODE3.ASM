@@ -305,7 +305,7 @@ IFINDCOM:
         JCXZ    IFSTRING
         JMP     SHORT FIRSTCOMP
 IFCOMP:
-        JNZ     IFDIF
+        JNZ     IFDIF1
 FIRSTCOMP:
         LODSB
         MOV     AH,ES:[DI]
@@ -316,7 +316,7 @@ FIRSTCOMP:
         CMP     AL,AH
 IFLP:
         LOOP    IFCOMP
-IFDIF:
+IFDIF1:
         LAHF
         ADD     DI,CX           ; Bump to next position without affecting flags
         MOV     BX,[DI]         ; Get handler address
