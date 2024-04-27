@@ -15,12 +15,12 @@ SUBTTL	SELECT2.asm						;AN000;
 ;
 ;		  Panel flow is defined in the following files:
 ;
-;		      О©╫ SELECT1.ASM
-;		      О©╫ SELECT2.ASM
-;		      О©╫ SELECT3.ASM
-;		      О©╫ SELECT4.ASM
-;		      О©╫ SELECT5.ASM
-;		      О©╫ SELECT6.ASM
+;		      д SELECT1.ASM
+;		      д SELECT2.ASM
+;		      д SELECT3.ASM
+;		      д SELECT4.ASM
+;		      д SELECT5.ASM
+;		      д SELECT6.ASM
 ;
 ;
 ;  Module contains code for :
@@ -72,10 +72,10 @@ SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
 	EXTRN	GET_OVERLAY:NEAR				;AN000;DT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫WORKSPACE_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дWORKSPACE_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;
 ;  The User Function and Memory Workspace Needs Screen is always presented.
 ;  The screen allows the user to define the memory requirements for
@@ -86,42 +86,42 @@ SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
 ;  All values are re-initialized the second time round only if the new option
 ;  is different from the previously selected option.
 ;
-; О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-; О©╫		 О©╫  I_WORKSPACE=1 О©╫  I_WORKSPACE=2 О©╫  I_WORKSPACE=3 О©╫
-; О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д╢
-; О©╫ P_BREAK	 О©╫  'ON'          О©╫  'ON'          О©╫  'ON'          О©╫
-; О©╫ P_BUFFERS	 О©╫  ' '           О©╫  '20'          О©╫  '50,4'        О©╫
-; О©╫ P_CPSW	 О©╫  'OFF'         О©╫  'OFF'         О©╫  'OFF'         О©╫
-; О©╫ F_CPSW	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_FCBS	 О©╫  ' '           О©╫  ' '           О©╫  '20,8'        О©╫
-; О©╫ P_FILES	 О©╫  '8'           О©╫  '20'          О©╫  '20'          О©╫
-; О©╫ P_LASTDRIVE  О©╫  'E'           О©╫  'E'           О©╫  'E'           О©╫
-; О©╫ P_STACKS	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ P_VERIFY	 О©╫  'OFF'         О©╫  'OFF'         О©╫  'OFF'         О©╫
-; О©╫ P_PROMPT	 О©╫  '$P$G'        О©╫  '$P$G'        О©╫  '$P$G'        О©╫
-; О©╫ F_PROMPT	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_PATH	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ F_PATH	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_APPEND	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ F_APPEND	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_ANSI	 О©╫  ' '           О©╫  ' '           О©╫  '/X'          О©╫
-; О©╫ F_ANSI	 О©╫  no		  О©╫  yes	   О©╫  yes	    О©╫
-; О©╫ P_FASTOPEN	 О©╫  ' '           О©╫  'C:=(50,25)'  О©╫  'C:=(100,200)'О©╫
-; О©╫ F_FASTOPEN	 О©╫  no		  О©╫  yes	   О©╫  yes	    О©╫
-; О©╫ F_GRAFTABL	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_GRAPHICS	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ F_GRAPHICS	 О©╫  no		  О©╫  yes	   О©╫  yes	    О©╫
-; О©╫ P_SHARE	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ F_SHARE	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_SHELL	 О©╫  '/R'          О©╫  '/R'          О©╫  '/R'          О©╫
-; О©╫ F_SHELL	 О©╫  yes 	  О©╫  yes	   О©╫  yes	    О©╫
-; О©╫ P_VDISK	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ F_VDISK	 О©╫  no		  О©╫  no 	   О©╫  no	    О©╫
-; О©╫ P_XMAEM	 О©╫  ' '           О©╫  ' '           О©╫  ' '           О©╫
-; О©╫ DOS_LOC	 О©╫  'DOS'         О©╫  'DOS'         О©╫  'DOS'         О©╫
-; О©╫ F_XMA	 О©╫  yes 	  О©╫  yes	   О©╫  yes	    О©╫
-; О©╫ P_XMA2EMS	 О©╫  'FRAME=D000 P254=C800 P255=CC00' for all optionsО©╫
-; О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+; дддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд©
+; д		 д  I_WORKSPACE=1 д  I_WORKSPACE=2 д  I_WORKSPACE=3 д
+; дддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд╢
+; д P_BREAK	 д  'ON'          д  'ON'          д  'ON'          д
+; д P_BUFFERS	 д  ' '           д  '20'          д  '50,4'        д
+; д P_CPSW	 д  'OFF'         д  'OFF'         д  'OFF'         д
+; д F_CPSW	 д  no		  д  no 	   д  no	    д
+; д P_FCBS	 д  ' '           д  ' '           д  '20,8'        д
+; д P_FILES	 д  '8'           д  '20'          д  '20'          д
+; д P_LASTDRIVE  д  'E'           д  'E'           д  'E'           д
+; д P_STACKS	 д  ' '           д  ' '           д  ' '           д
+; д P_VERIFY	 д  'OFF'         д  'OFF'         д  'OFF'         д
+; д P_PROMPT	 д  '$P$G'        д  '$P$G'        д  '$P$G'        д
+; д F_PROMPT	 д  no		  д  no 	   д  no	    д
+; д P_PATH	 д  ' '           д  ' '           д  ' '           д
+; д F_PATH	 д  no		  д  no 	   д  no	    д
+; д P_APPEND	 д  ' '           д  ' '           д  ' '           д
+; д F_APPEND	 д  no		  д  no 	   д  no	    д
+; д P_ANSI	 д  ' '           д  ' '           д  '/X'          д
+; д F_ANSI	 д  no		  д  yes	   д  yes	    д
+; д P_FASTOPEN	 д  ' '           д  'C:=(50,25)'  д  'C:=(100,200)'д
+; д F_FASTOPEN	 д  no		  д  yes	   д  yes	    д
+; д F_GRAFTABL	 д  no		  д  no 	   д  no	    д
+; д P_GRAPHICS	 д  ' '           д  ' '           д  ' '           д
+; д F_GRAPHICS	 д  no		  д  yes	   д  yes	    д
+; д P_SHARE	 д  ' '           д  ' '           д  ' '           д
+; д F_SHARE	 д  no		  д  no 	   д  no	    д
+; д P_SHELL	 д  '/R'          д  '/R'          д  '/R'          д
+; д F_SHELL	 д  yes 	  д  yes	   д  yes	    д
+; д P_VDISK	 д  ' '           д  ' '           д  ' '           д
+; д F_VDISK	 д  no		  д  no 	   д  no	    д
+; д P_XMAEM	 д  ' '           д  ' '           д  ' '           д
+; д DOS_LOC	 д  'DOS'         д  'DOS'         д  'DOS'         д
+; д F_XMA	 д  yes 	  д  yes	   д  yes	    д
+; д P_XMA2EMS	 д  'FRAME=D000 P254=C800 P255=CC00' for all optionsд
+; ддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддддд
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 WORKSPACE_SCREEN:						;AN000;
 	INIT_PQUEUE		PAN_WORKSPACE			;AN000; initialize queue
@@ -162,10 +162,10 @@ WORKSPACE_SCREEN:						;AN000;
 	.ENDIF							;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫CTY_KYBD_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дCTY_KYBD_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;
 ;  The COUNTRY and KEYBOARD support screen is always presented.
 ;  The screen allows the user to choose the pre-defined country and
@@ -235,10 +235,10 @@ CTY_KYBD_SCREEN:						;AN000;
 	.ENDIF							;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫COUNTRY_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дCOUNTRY_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;
 ;  The COUNTRY CODE screen is presented if the user selected to define
 ;  country specific support (CTY_KYBD_SCREEN).
@@ -328,10 +328,10 @@ COUNTRY_SCREEN: 						;AN000;
 	.ENDIF							;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫KEYBOARD_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дKEYBOARD_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;  The KEYBOARD CODE screen is presented if the user had selected to
 ;  define country specific support and the country code selected has a valid
 ;  keyboard code association.
@@ -405,10 +405,10 @@ KEYBOARD_SCREEN:						;AN000;
 	.ENDIF							;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫ALT_KYB_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дALT_KYB_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;
 ;  The ALTERNATE KEYBOARD CODE screen is presented if the selected keyboard
 ;  has different keyboard layouts.
@@ -472,13 +472,13 @@ ALT_KYB_SCREEN: 						;AN000;
 	.ENDIF							;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;   О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫
-;  О©╫ LOAD_KEYBOARD			 О©╫
+;   д д д д д д д д д д д д д д д д д д д
+;  д LOAD_KEYBOARD			 д
 ;
-;  О©╫	This will execute the keyboard	 О©╫
+;  д	This will execute the keyboard	 д
 ;	program to load the requested
-;  О©╫	keyboard routine.		 О©╫
-;   О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫ О©╫
+;  д	keyboard routine.		 д
+;   д д д д д д д д д д д д д д д д д д д
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 LOAD_KEYBOARD:							;AN000;
@@ -540,10 +540,10 @@ LOAD_KEYBOARD:							;AN000;
 								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫д©
-;  О©╫DEST_DRIVE_SCREEN			О©╫
-;  О©╫					О©╫
-;  О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+;  ддддддддддддддддддддддддддддддддддддд©
+;  дDEST_DRIVE_SCREEN			д
+;  д					д
+;  дддддддддддддддддддддддддддддддддддддд
 ;
 ;  The DESTINATION DRIVE screen is presented when there is an option for
 ;  the destination drive. Possible options are:
