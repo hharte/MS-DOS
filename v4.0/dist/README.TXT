@@ -1,8 +1,9 @@
 README.TXT
-October 12, 1988
+December 1, 1988
 
 This document covers topics not included in MS-DOS printed documentation.  
 It also lists a small number of corrections.
+
 
 DEVICE DRIVERS
 --------------
@@ -43,7 +44,6 @@ please see the Microsoft MS-DOS User's Reference.
 
 HIMEM.SYS--Installable Device Driver for Extended Memory 
 ---------------------------------------------------------
-
 Capabilities
 ------------
 
@@ -64,6 +64,7 @@ If you are loading other extended memory programs which do not use the XMS
 interface to manage the extended memory, they should be configured to 
 leave at least 64K of extended memory free.
 
+
 System Requirements
 
 To use HIMEM.SYS with your computer, you need the following:
@@ -71,6 +72,7 @@ To use HIMEM.SYS with your computer, you need the following:
 o   An IBM PC/AT, PS/2 (except models 25 and 30), or compatible computer
 
 o   Extended memory
+
 
 Installing HIMEM.SYS
 
@@ -125,6 +127,7 @@ will be displayed:
 
      n extended memory handles available.
 
+
 Examples
 
 The following command line shows the most common configuration of HIMEM.SYS:
@@ -142,6 +145,7 @@ maximum number of Extended Memory Block handles:
 
      DEVICE=HIMEM.SYS /NUMHANDLES=128
 
+
 Messages
 
 The following messages may appear when you install the HIMEM.SYS 
@@ -157,7 +161,7 @@ You have installed HIMEM.SYS properly.
 
 You have tried to install HIMEM.SYS on a machine using a version of MS-DOS 
 lower than 3.0.  You can only install HIMEM.SYS on systems using MS-DOS 
-Version 3.00 or higher.
+version 3.00 or higher.
 
 *     ERROR: HIMEM.SYS requires an 80x86-based machine.
       XMS Driver not installed.
@@ -212,13 +216,13 @@ System Requirements
 
 To use EMM386.SYS with your computer, you need the following:
 
-o   A 80386 based computer compatible with the IBM AT standard 
+o   A 80386-based computer compatible with the IBM AT standard 
     hardware/software interface, such as Compaq 386 or AST Premium 386.
 
 o   Extended memory
 
 Note: The EMM386.SYS driver detects most boards which utilize memory 
-between the addresses A000-E000.  To determine what memory addresses to 
+between the addresses A000--E000.  To determine what memory addresses to 
 exclude, or where to load its page frame, EMM386.SYS searches between A000
 and E000 to find addresses used by these adapters.  It will not load its
 page frame at these addresses.  Once it finds a contiguous block of 64K of
@@ -230,7 +234,7 @@ Installing EMM386.SYS
 To install EMM386.SYS, include the following command line in your 
 CONFIG.SYS file:
 
-DEVICE=[d:][path]emm386.sys [size]  [X:mmmm-nnnn] [Mx]
+     DEVICE=[d:][path]EMM386.SYS [size]  [X:mmmm-nnnn] [Mx]
 
 You should make sure that the EMM386.SYS driver gets loaded before any 
 other programs, such as Microsoft RAMDrive, that use expanded memory.
@@ -239,26 +243,26 @@ Following is a description of the options in the EMM386.SYS command line:
 
 size
 
-size specifies the amount of extended memory that EMM386.SYS will use.  
-Specify the amount in kilobytes.  The recommended amount is 512K and
-default is 256K.
+This option specifies the amount of extended memory that 
+EMM386.SYS will use.  Specify the amount in kilobytes.  
+The recommended amount is 512K and default is 256K.
 
 X:mmmm-nnnn   (Memory Exclusion Range)
 
-This parameter allows you to specify a range of memory which  will not be 
+This option allows you to specify a range of memory which  will not be 
 used for locating the EMM386.SYS page frame or other mappable pages.  Use
 this option if an expansion option board (e.g., a network board) is
 installed between the addresses A000 and E000. 
 
 Don't use this option unless you detect a conflict between EMM386.SYS and 
-an expansion option board.  However, a conflict is not likely to occur, as
+an expansion option board.  However, a conflict is not likely to occur as
 EMM386.SYS automatically recognizes the presence of most expansion option
-boards and will not try and use the range of memory these boards use for
+boards and will not try to use the range of memory these boards use for
 locating the EMM386.SYS page frame or mappable pages.
 
 Mx    (Page Frame Address Location)
 
-This parameter allows you to directly specify where the EMM386.SYS page
+This option allows you to directly specify where the EMM386.SYS page
 frame should be located in memory.  EMM386.SYS will automatically locate
 an address for the EMM386.SYS page frame.  Don't use this option unless
 you want to locate the page frame at a different address.  If EMM386.SYS
@@ -284,27 +288,27 @@ conflict with any options that you have previously installed.
 
 Examples 
 
-device=emm386.sys 1024
+     DEVICE=EMM386.SYS 1024
 
 This will load the EMM386.SYS driver and take 1024K of extended memory 
 to provide expanded memory.
 
 
-device=emm386.sys 1024 X:C400-C7FF 
+     DEVICE=EMM386.SYS 1024 X:C400-C7FF 
 
 This will produce the same result as in the first example, but it also 
 excludes the C400 to C7FF (768K to 832K) from being used by EMM386.SYS to 
 locate its page frame or mappable pages.
 
 
-device=emm386.sys 1024 X:C400-C7FF X:E000-E3FF
+     DEVICE=EMM386.SYS 1024 X:C400-C7FF X:E000-E3FF
 
 This will produce the same result as in the second example, but it excludes 
 both C400-C7FF and E000-E3FF (896K to 960K) from being used by EMM386.SYS 
 to locate its page frame or mappable pages.
 
 
-device=emm386.sys 1024 M6
+     DEVICE=EMM386.SYS 1024 M6
 
 This will load EMM386.SYS and make 1024K of expanded memory available for 
 its use.  It also forces EMM386.SYS to locate its page frame at D800.
@@ -352,7 +356,7 @@ You will need additional extended memory required to install EMM386.SYS
 
 You have tried to install EMM386.SYS on a machine using a version of MS-DOS
 lower than 3.1.  You can only install EMM386.SYS on systems using MS-DOS 
-Version 3.1 or higher.
+version 3.1 or higher.
 
 *    EMM386 not installed - incorrect machine type.
 
@@ -369,6 +373,91 @@ contiguous memory in the 640K to 1 MB range to load its page frame
 *     EMM386 already installed.
 
 You cannot install EMM386.SYS twice.
+
+
+XMA2EMS.SYS Device Driver
+-------------------------
+
+This is a device driver that supports the Lotus, Intel, and Microsoft
+(LIM) Expanded Memory Specification (EMS) 4.0 under DOS 4.0.
+
+Important
+
+o    Expanded memory is memory addressed through a
+     combination of an Expanded Memory Specification (EMS)
+     device driver, such as XMA2EMS.SYS, and a hardware
+     adapter capable of providing expanded memory.  This
+     memory enhancement is available to you if you have
+     one of the following installed:
+
+     -  IBM 2MB Expanded Memory Adapter
+     -  IBM Personal System/2 80286 Expanded Memory
+        Adapter/A
+     -  IBM Personal System/2 80286 Memory Expansion Option
+
+o    Refer to the EMS 4.0 specification for further
+     information about how to allocate the memory in your
+     system.
+
+
+Example
+
+For example, to specify a 64K page frame for EMS applications, two
+16K pages for DOS usage, and 1MB as the amount of expanded memory to
+allocate, enter the following line in your CONFIG.SYS file:
+
+     DEVICE=C:\DOS\XMA2EMS.SYS FRAME=D000 P254=C000 P255=C400 /X:64
+
+The following section explains the values entered in
+this command line and other values that can be substituted.
+
+
+Remarks
+
+o    The FRAME=D000 parameter specifies the default EMS page frame.  It
+     consists of a 64K contiguous (connecting) space of available
+     memory, specified as one address that automatically sets the next
+     four contiguous pages.  You may substitute the address segment,
+     D000, with any 64K available page frame from address segments
+     hexadecimal C000 through E000.
+
+o    If you specify the FRAME parameter (such as FRAME=D000) to set
+     pages P0, P1, P2, and P3, you cannot individually specify page
+     p0, p1, p2, or p3 in the DEVICE statement. By specifying the
+     FRAME parameter, you are already identifying four contiguous
+     pages.
+
+     For example, you could set pages p0 through p3 from D000 through
+     DC00 or have a page frame begin at D000 if you have a 64KB
+     contiguous space in memory:
+
+    DEVICE=XMA2EMS.SYS P0=D000 P1=D400 P2=D800 P3=DC00 P254=C000 P255=C400
+
+              or
+
+    DEVICE=XMA2EMS.SYS FRAME=D000 P254=C000 P255=C400
+
+
+o    The P254=C000 and P255=C400 parameters in the example represent
+     "pages". A page is a fixed-length block of memory that is equal
+     to 16K of memory and can represent the value P0, P1, P2, P3,
+     P254, or P255. In the case of the XMA2EMS driver, pages P254 and
+     P255 are reserved for use by DOS.  If you specify the P254 page,
+     you can run FASTOPEN in expanded memory by
+     specifying the /X parameter.  If you specify P255, you can run the
+     BUFFERS command with the /X parameter specified.  If you do not
+     specify P254 or P255 in your DEVICE statement for XMA2EMS, DOS
+     cannot use expanded memory and, therefore, uses conventional
+     memory for DOS functions.
+
+o    You can set the size value of /X from a minimum of four 16K
+     pages through the default value which is the maximum total
+     available memory in multiples of 16K pages.  For example, the
+     minimum amount of memory you may specify is 64K (four 16K
+     pages):
+
+     DEVICE=C:\DOS\XMA2EMS.SYS FRAME=D000 P254=C000 P255=C400 /X:4
+
 
 
 CORRECTIONS
@@ -393,3 +482,13 @@ MS-DOS User's Reference--Mode command--Page 100.
 The second syntax statement should read:
 
 mode [display],shift[,t]
+
+
+MS-DOS User's Reference--Select command--Page 122.
+
+The third paragraph should read:
+
+If you have already installed MS-DOS on the hard disk and you need to 
+update the specifications made previously, insert the Install disk in drive A, 
+set drive A as the default drive, and enter the following at the DOS prompt:
+
